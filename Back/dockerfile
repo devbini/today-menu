@@ -1,28 +1,18 @@
-# JDK 설정 (Alpine 기반, Java 17 사용)
-FROM openjdk:17-jdk-alpine
+# Node 설정
+FROM node:20
 
 # 작업 폴더 설정
 WORKDIR /app
 
-# 필요한 패키지 설치
-RUN apk update && apk add findutils coreutils
+# 의존성 읽어오기
+COPY package.json package-lock.json ./
 
-# 빌드 파일 복사
-COPY gradlew .
-COPY gradlew.bat .
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
-COPY src src
+# 의존성 설치
+RUN npm install
+COPY . .
 
-# 혹시모를 권한설정
-RUN chmod +x gradlew
-
-# 빌드
-RUN ./gradlew build && mv build/libs/backend-app.jar /app/backend.jar
-
-# 포트 설정 (nginx에서 프록시할 것)
+# 애플리케이션 포트 설정 (8080 포트 사용)
 EXPOSE 8080
 
-# Run 🚀
-CMD ["java", "-jar", "backend.jar"]
+# 애플리케이션 실행
+CMD ["node", "app.js"]
