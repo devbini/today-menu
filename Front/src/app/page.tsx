@@ -13,6 +13,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import Head from 'next/head';
 
 interface Data {
   URL: string;
@@ -24,7 +25,7 @@ export default function Home() {
   // 데이터 저장 및 에러 내용 저장
   const [data, setData] = useState<Data | undefined>();
   const [error, setError] = useState<string | undefined>();
-  
+
   // 로딩 화면
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -45,19 +46,28 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="container">
-      <h1>오늘의 우령각시 메뉴</h1>
-      {loading ? (
-        <p>데이터를 불러오는 중입니다. . .</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : data ? (
-        <div className="menu-card">
-          <img src={data.URL} alt="오늘의 메뉴" />
-          <p>{data.DATE}</p>
-          <p>사이드: {data.SIDE}</p>
-        </div>
-      ) : null}
-    </div>
+    <>
+      {/* SSO 추가 */}
+      <Head>
+        <title>오늘의 우령각시 메뉴</title>
+        <meta name="description" content="오늘의 우령각시 메뉴를 확인하세요." />
+      </Head>
+
+      {/* 메인 페이지 */}
+      <div className="container">
+        <h1>오늘의 우령각시 메뉴</h1>
+        {loading ? (
+          <p>데이터를 불러오는 중입니다. . .</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : data ? (
+          <div className="menu-card">
+            <img src={data.URL} alt="오늘의 메뉴" />
+            <p>{data.DATE}</p>
+            <p>사이드: {data.SIDE}</p>
+          </div>
+        ) : null}
+      </div>
+    </>
   );
 }
