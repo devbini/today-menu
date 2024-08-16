@@ -1,0 +1,28 @@
+# JDK 설정 (Alpine 기반, Java 17 사용)
+FROM openjdk:17-jdk-alpine
+
+# 작업 폴더 설정
+WORKDIR /app
+
+# 필요한 패키지 설치
+RUN apk update && apk add findutils coreutils
+
+# 빌드 파일 복사
+COPY gradlew .
+COPY gradlew.bat .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+COPY src src
+
+# 혹시모를 권한설정
+RUN chmod +x gradlew
+
+# 빌드
+RUN ./gradlew build && mv build/libs/backend-app.jar /app/backend.jar
+
+# 포트 설정 (nginx에서 프록시할 것)
+EXPOSE 8080
+
+# Run 🚀
+CMD ["java", "-jar", "backend.jar"]

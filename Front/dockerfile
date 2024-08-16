@@ -1,0 +1,18 @@
+# Node 설정
+FROM node:20
+
+# 작업 폴더 설정
+WORKDIR /app
+
+# 의존성 읽어오기
+COPY package*.json ./
+
+# 의존성 설치
+RUN npm install
+COPY . .
+
+# 빌드
+RUN npm run build
+
+# Run 🚀
+CMD ["npm", "start"]
