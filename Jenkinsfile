@@ -4,7 +4,7 @@ pipeline {
     stages {
         // Front 빌드 단계
         stage("🚩 Build Front") {
-            step {
+            steps {
                 script {
                     sh 'docker-compose build frontend'
                 }
@@ -13,7 +13,7 @@ pipeline {
 
         // Back 빌드 단계
         stage("🚩 Build Back") {
-            step {
+            steps {
                 script {
                     sh 'docker-compose build backend'
                 }
