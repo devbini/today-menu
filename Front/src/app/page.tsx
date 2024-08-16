@@ -14,16 +14,17 @@
 
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import './css/page.css';
 
 interface Data {
-  URL: string;
-  DATE: string;
-  SIDE: string;
+  url: string;
+  date: string;
+  side: string;
 }
 
 export default function Home() {
   // 데이터 저장 및 에러 내용 저장
-  const [data, setData] = useState<Data | undefined>();
+  const [server_data, setData] = useState<Data | undefined>();
   const [error, setError] = useState<string | undefined>();
 
   // 로딩 화면
@@ -36,35 +37,45 @@ export default function Home() {
       .then(response => response.json())
       .then(data => {
         setData(data);
-        setLoading(false);
       })
       .catch(error => {
-        console.error('Error :', error);
-        setError('데이터를 읽는데 문제가 발생했습니다.');
+        setError(error);
         setLoading(false);
       });
   }, []);
+  
+  // 값이 정상적으로 들어왔는지 확인합니다.
+  useEffect(() => {
+    if (server_data) {
+      console.log('🚲 DEBUG : ', server_data);
+      setLoading(false);
+    }
+  }, [server_data]);
 
   return (
     <>
       {/* SSO 추가 */}
       <Head>
-        <title>오늘의 우령각시 메뉴</title>
-        <meta name="description" content="오늘의 우령각시 메뉴를 확인하세요." />
+        <title>오늘의 우렁각시 메뉴</title>
+        <meta name="description" content="🚗 오늘의 우렁각시 메뉴를 확인하세요!" />
       </Head>
 
       {/* 메인 페이지 */}
       <div className="container">
-        <h1>오늘의 우령각시 메뉴</h1>
+        <h1>오늘의 우렁각시 메뉴</h1>
+        
         {loading ? (
           <p>데이터를 불러오는 중입니다. . .</p>
         ) : error ? (
           <p>{error}</p>
-        ) : data ? (
+        ) : server_data ? (
           <div className="menu-card">
-            <img src={data.URL} alt="오늘의 메뉴" />
-            <p>{data.DATE}</p>
-            <p>사이드: {data.SIDE}</p>
+            <img
+              src={server_data && server_data.url ? `http://3.36.142.196${server_data.url.replace('/var/www', '')}` : ''}
+              alt="오늘의 메뉴"
+            />
+            <p className='date'>{server_data.date.substring(0, 10)}</p>
+            <p className='side'>사이드 : {server_data.side}</p>
           </div>
         ) : null}
       </div>
