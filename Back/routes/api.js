@@ -18,6 +18,7 @@ connection.connect(function(err) {
         console.error('MySQL 연결 실패:', err);
         return;
     }
+    console.log('MySQL 연결 성공!');
 });
 
 // GET /api/test
@@ -27,10 +28,11 @@ router.get('/test', function(req, res, next) {
 
 // GET /api/getdatas
 router.get('/getdatas', function(req, res, next) {
-    const query = 'SELECT url, date, side FROM menu_tb ORDER BY date DESC LIMIT 1';
+    const query = 'SELECT url, date, side FROM menu_tb ORDER BY date DESC LIMIT 1;';
     
     connection.query(query, function(err, results) {
         if (err) {
+            console.error('쿼리 실행 오류 : ', err);
             res.status(500).send('서버 오류');
             return;
         }
