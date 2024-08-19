@@ -61,4 +61,24 @@ router.get('/getdatas', async function(req, res, next) {
     }
 });
 
+// POST /api/login
+router.post('/login', async function(req, res, next) {
+    const { id, pw } = req.body;
+
+    const query = 'SELECT * FROM admin_tb WHERE id = ? AND password = ?';
+    const params = [id, pw];
+
+    try {
+        const results = await executeQuery(query, params);
+        if (results.length > 0) {
+            res.json({ message: '1' }); // 성공
+        } else {
+            res.json({ message: '0' }); // 실패
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('서버 오류');
+    }
+});
+
 module.exports = router;
