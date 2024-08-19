@@ -87,6 +87,8 @@ router.post('/upload', upload.single('image'), async function(req, res, next) {
     } catch (err) {
         console.error(err);
         res.status(500).send('파일 업로드 오류');
+    }
+});
 
 // POST /api/login
 router.post('/login', async function(req, res, next) {
