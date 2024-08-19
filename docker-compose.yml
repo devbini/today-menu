@@ -24,6 +24,7 @@ services:
       - /home/importent/.env
     volumes:
       - /home/importent:/home/importent
+      - /var/www/uploads:/var/www/uploads
     networks:
       - lunch-network
 
