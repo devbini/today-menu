@@ -1,20 +1,25 @@
-/**************************************
+/********************************************************************
 
   # 구내식당 메뉴 미리보기 서비스 #
   # 작성자 : 김찬빈 (Kim Chan Been, https://github.com/devbini)
-  # 코드 작성 날짜 (업데이트 날짜) : 2024-08-16
+  # 코드 작성 날짜 (업데이트 날짜) : 2024-08-19
 
-  # 파일 역할
+  # page.tsx 파일 역할
   # 1. 사용자가 마주하는 첫 화면
   # 2. 오늘의 메뉴를 바로 보여줌
 
-***************************************/
+*********************************************************************/
 
 'use client'
 
+// lib list
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import Adminpage from './components/adminpage';
+
+// CSS
 import './css/page.css';
+import './css/adminpage.css';
 
 interface Data {
   url: string;
@@ -26,6 +31,17 @@ export default function Home() {
   // 데이터 저장 및 에러 내용 저장
   const [server_data, setData] = useState<Data | undefined>();
   const [error, setError] = useState<string | undefined>();
+
+  // 관리자 전용 팝업 ON / OFF용 변수&함수
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+
+  const handlePopupOpen = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handlePopupClose = () => {
+    setIsPopupOpen(false);
+  };
 
   // 로딩 화면
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,7 +59,7 @@ export default function Home() {
         setLoading(false);
       });
   }, []);
-  
+
   // 값이 정상적으로 들어왔는지 확인합니다.
   useEffect(() => {
     if (server_data) {
@@ -52,6 +68,7 @@ export default function Home() {
     }
   }, [server_data]);
 
+  // HTML
   return (
     <>
       {/* SSO 추가 */}
@@ -63,7 +80,7 @@ export default function Home() {
       {/* 메인 페이지 */}
       <div className="container">
         <h1>오늘의 우렁각시 메뉴</h1>
-        
+
         {loading ? (
           <p>데이터를 불러오는 중입니다. . .</p>
         ) : error ? (
@@ -78,6 +95,13 @@ export default function Home() {
             <p className='side'>사이드 : {server_data.side}</p>
           </div>
         ) : null}
+
+  <button className='admin-button' onClick={handlePopupOpen}>Staff Only</button>
+
+        {/* 관리자 전용 팝업 페이지 제공 */}
+        {isPopupOpen && (
+          <Adminpage onClose={handlePopupClose} />
+        )}
       </div>
     </>
   );
