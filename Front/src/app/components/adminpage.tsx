@@ -29,8 +29,16 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
 
     // 파일 업로드
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setFile(e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+            const selectedFile = e.target.files[0];
+
+            // 파일 타입 확인
+            if (selectedFile.type.startsWith('image/')) {
+                setFile(selectedFile);
+            } else {
+                alert('이미지 파일만 업로드할 수 있습니다.');
+                setFile(null);
+            }
         }
     };
 
@@ -74,7 +82,7 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
             <div className="popup-card">
                 <h2>어서오세요 관리자님!</h2>
                 <h3>메뉴 사진과 사이드메뉴 이름을 남겨주세요!</h3>
-                <input type="file" onChange={handleFileChange} />
+                <input type="file" onChange={handleFileChange} accept="image/*" />
                 <input
                     type="text"
                     placeholder="사이드 메뉴 이름"
