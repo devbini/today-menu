@@ -49,7 +49,7 @@ const storage = multer.diskStorage({
         cb(null, 'image.jpg');
     }
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage, limits: { fileSize: 50 * 1024 * 1024 } });
 
 // GET /api/test
 router.get('/test', function(req, res, next) {
