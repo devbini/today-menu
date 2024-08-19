@@ -5,21 +5,39 @@ var express = require('express');
 var router = express.Router();
 var mysql = require('mysql2');
 
-// MySQL 연결 설정
-var connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PW,
-    database: process.env.DB_NAME
-});
+// MySQL 쿼리 실행 함수 (요청 때 마다 연결을 생성하도록...)
+function executeQuery(query, params = []) {
+    return new Promise((resolve, reject) => {
 
-connection.connect(function(err) {
-    if (err) {
-        console.error('MySQL 연결 실패:', err);
-        return;
-    }
-    console.log('MySQL 연결 성공!');
-});
+        // MySQL 연결 생성
+        var connection = mysql.createConnection({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PW,
+            database: process.env.DB_NAME
+        });
+
+        // 연결 시도
+        connection.connect(function(err) {
+            if (err) {
+                reject('MySQL 연결 실패... : ' + err);
+                return;
+            }
+
+            // 쿼리 실행
+            connection.query(query, params, function(err, results) {
+                // 쿼리가 끝나면 연결 끊기
+                connection.end();
+
+                if (err) {
+                    reject('쿼리 실행 오류: ' + err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    });
+}
 
 // GET /api/test
 router.get('/test', function(req, res, next) {
@@ -27,22 +45,20 @@ router.get('/test', function(req, res, next) {
 });
 
 // GET /api/getdatas
-router.get('/getdatas', function(req, res, next) {
+router.get('/getdatas', async function(req, res, next) {
     const query = 'SELECT url, date, side FROM menu_tb ORDER BY date DESC LIMIT 1;';
-    
-    connection.query(query, function(err, results) {
-        if (err) {
-            console.error('쿼리 실행 오류 : ', err);
-            res.status(500).send('서버 오류');
-            return;
-        }
 
+    try {
+        const results = await executeQuery(query);
         if (results.length > 0) {
             res.json(results[0]);
         } else {
             res.status(404).send('데이터 없음');
         }
-    });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('서버 오류');
+    }
 });
 
 module.exports = router;
