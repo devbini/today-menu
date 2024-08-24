@@ -58,7 +58,7 @@ router.get('/test', function(req, res, next) {
 
 // GET /api/getdatas
 router.get('/getdatas', async function(req, res, next) {
-    const query = 'SELECT url, date, side FROM menu_tb ORDER BY date DESC LIMIT 1;';
+    const query = 'SELECT url, date, side FROM menu_tb ORDER BY id DESC LIMIT 1;';
 
     try {
         const results = await executeQuery(query);

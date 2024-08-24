@@ -57,10 +57,12 @@
 }
 
 /* 닫기 버튼 스타일 */
+.login-card button:last-child,
 .popup-card button:last-child {
     background-color: #6c757d;
 }
 
+.login-card button:last-child:hover,
 .popup-card button:last-child:hover {
     background-color: #5a6268;
 }

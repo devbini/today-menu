@@ -71,9 +71,13 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
         setIsLoggedIn(true);
     };
 
+    const handleCloseLoginbox = () => {
+        onClose();
+    }
+
     // 로그인 성공하면 로그인 팝업 삭제
     if (!isLoggedIn) {
-        return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+        return <LoginPage onLoginSuccess={handleLoginSuccess} onClose={handleCloseLoginbox} />;
     }
 
     // HTML
@@ -90,7 +94,7 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
                     onChange={(e) => setText1(e.target.value)}
                 />
                 <button onClick={handleSubmit}>저장</button>
-                <button onClick={onClose}>닫기</button>
+                <button className="popup-close" onClick={onClose}>닫기</button>
             </div>
         </div>
     );
