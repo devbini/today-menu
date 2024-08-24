@@ -15,10 +15,11 @@ import React, { useState } from "react";
 // 함수형 컴포넌트의 매게변수 전용
 interface LoginPageProps {
     onLoginSuccess: () => void;
+    onClose: () => void;
 }
 
 // Function Component (FC)
-const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
     // 입력 정보 저장
     const [id, setId] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -67,6 +68,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button onClick={handleLogin}>로그인</button>
+                <button onClick={onClose}>닫기</button>
             </div>
         </div>
     );
