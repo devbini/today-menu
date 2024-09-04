@@ -48,16 +48,24 @@ export default function Home() {
 
   // 웹 접속 시 처음 한 번 실행하는 함수,
   // Back으로부터 s3의 데이터를 받아 실행합니다.
-  useEffect(() => {
+  const fetchData = () => {
+    setLoading(true);
     fetch('http://3.36.142.196:9091/api/getdatas')
       .then(response => response.json())
       .then(data => {
         setData(data);
+        setLoading(false);
       })
       .catch(error => {
-        setError(error);
+        setError(error.toString());
         setLoading(false);
       });
+  };
+
+
+  // 페이지 로드시 데이터 가져오기
+  useEffect(() => {
+    fetchData();
   }, []);
 
   // 값이 정상적으로 들어왔는지 확인합니다.
@@ -104,7 +112,7 @@ export default function Home() {
 
         {/* 관리자 전용 팝업 페이지 제공 */}
         {isPopupOpen && (
-          <Adminpage onClose={handlePopupClose} />
+          <Adminpage onClose={handlePopupClose} onUploadSuccess={fetchData}/>
         )}
       </div>
     </>
