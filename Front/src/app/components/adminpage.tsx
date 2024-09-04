@@ -16,10 +16,11 @@ import LoginPage from "./loginpage";
 // 함수형 컴포넌트의 매개변수 전용
 interface AdminpageProps {
     onClose: () => void;
+    onUploadSuccess: () => void;
 }
 
 // Function Component (FC)
-const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
+const AdminPage: React.FC<AdminpageProps> = ({ onClose, onUploadSuccess }) => {
     // 로그인 여부 저장
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
@@ -61,6 +62,7 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
                     console.log("Success:", data);
                     setLoading(false);
                     alert("업로드가 성공적으로 완료되었습니다!");
+                    onUploadSuccess();
                     onClose();
                 })
                 .catch((error) => {
