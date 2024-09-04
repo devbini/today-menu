@@ -80,6 +80,11 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose, onUploadSuccess }) => {
         setIsLoggedIn(true);
     };
 
+    // 로그인되지 않은 경우 로그인 페이지 표시
+    if (!isLoggedIn) {
+        return <LoginPage onLoginSuccess={handleLoginSuccess} onClose={onClose}/>;
+    }
+
     // HTML
     return (
         <div className="popup-container">
