@@ -68,6 +68,10 @@ export default function Home() {
     }
   }, [server_data]);
 
+  const imageUrl = server_data && server_data.url 
+  ? `http://3.36.142.196${server_data.url.replace('/var/www', '')}?timestamp=${new Date().getTime()}` 
+  : '';
+
   // HTML
   return (
     <>
@@ -88,7 +92,7 @@ export default function Home() {
         ) : server_data ? (
           <div className="menu-card">
             <img
-              src={server_data && server_data.url ? `http://3.36.142.196${server_data.url.replace('/var/www', '')}` : ''}
+              src={imageUrl}
               alt="오늘의 메뉴"
             />
             <p className='date'>{server_data.date.substring(0, 10)}</p>

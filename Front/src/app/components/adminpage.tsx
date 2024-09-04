@@ -24,8 +24,9 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     // 서버에 업로드할 정보 저장
-    const [file, setFile] = useState<File | null>(null);// 이미지 파일
-    const [text1, setText1] = useState<string>("");     // 사이드메뉴
+    const [file, setFile] = useState<File | null>(null); // 이미지 파일
+    const [text1, setText1] = useState<string>("");      // 사이드메뉴
+    const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
 
     // 파일 업로드
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +46,7 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
     // 데이터 업로드 시도 (POST)
     const handleSubmit = () => {
         if (file) {
+            setLoading(true); // 로딩 상태 시작
             const formData = new FormData();
             formData.append("image", file);
             formData.append("side", text1);
@@ -57,9 +59,14 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
                 .then((response) => response.json())
                 .then((data) => {
                     console.log("Success:", data);
+                    setLoading(false);
+                    alert("업로드가 성공적으로 완료되었습니다!");
+                    onClose();
                 })
                 .catch((error) => {
                     console.error("Error:", error);
+                    setLoading(false);
+                    alert("업로드 중 오류가 발생했습니다.");
                 });
         } else {
             alert("사진이 업로드 되지 않았습니다!");
@@ -71,18 +78,14 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
         setIsLoggedIn(true);
     };
 
-    const handleCloseLoginbox = () => {
-        onClose();
-    }
-
-    // 로그인 성공하면 로그인 팝업 삭제
-    if (!isLoggedIn) {
-        return <LoginPage onLoginSuccess={handleLoginSuccess} onClose={handleCloseLoginbox} />;
-    }
-
     // HTML
     return (
         <div className="popup-container">
+            {loading && (
+                <div className="loading-overlay">
+                    <div className="loading-message">업로드 중입니다. 잠시만 기다려주세요...</div>
+                </div>
+            )}
             <div className="popup-card">
                 <h2>어서오세요 관리자님!</h2>
                 <h3>메뉴 사진과 사이드메뉴 이름을 남겨주세요!</h3>
@@ -94,7 +97,7 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose }) => {
                     onChange={(e) => setText1(e.target.value)}
                 />
                 <button onClick={handleSubmit}>저장</button>
-                <button className="popup-close" onClick={onClose}>닫기</button>
+                <button onClick={onClose}>닫기</button>
             </div>
         </div>
     );
