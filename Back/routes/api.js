@@ -126,4 +126,9 @@ router.post('/login', async function(req, res, next) {
     }
 });
 
+// CSRF 토큰 요청
+router.get('/csrf-token', function(req, res) {
+    res.json({ csrfToken: req.csrfToken() });
+});
+
 module.exports = router;
