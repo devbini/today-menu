@@ -7,6 +7,11 @@ var apiRouter = require('./routes/api');
 
 var app = express();
 
+// XSS 쉴드 추가
+const xss = require('xss-clean');
+app.use(xss());
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

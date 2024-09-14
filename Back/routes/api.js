@@ -89,7 +89,7 @@ router.get('/getdatas', async function(req, res, next) {
 });
 
 // POST /api/upload
-router.post('/upload', upload.single('image'), async function(req, res, next) {
+router.post('/upload', csrfProtection, upload.single('image'), async function(req, res, next) {
     try {
         const { side } = req.body;
         const filePath = '/var/www/uploads/image.jpg';
@@ -106,7 +106,7 @@ router.post('/upload', upload.single('image'), async function(req, res, next) {
 });
 
 // POST /api/login
-router.post('/login', async function(req, res, next) {
+router.post('/login', csrfProtection, async function(req, res, next) {
     const { id, pw } = req.body;
 
     const query = 'SELECT * FROM admin_tb WHERE id = ? AND password = ?';
@@ -129,6 +129,6 @@ router.post('/login', async function(req, res, next) {
 // CSRF 토큰 요청
 router.get('/csrf-token', function(req, res) {
     res.json({ csrfToken: req.csrfToken() });
-});
+}); 
 
 module.exports = router;
