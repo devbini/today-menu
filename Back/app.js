@@ -2,15 +2,15 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const cors = require("cors");
+const csurf = require("csurf");
+const xss = require('xss-clean');
 
 var apiRouter = require('./routes/api');
-
 var app = express();
 
 // XSS 쉴드 추가
-const xss = require('xss-clean');
 app.use(xss());
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,6 +32,18 @@ app.use('/api', apiRouter);
 app.use(function(req, res, next) {
   next(createError(404));
 });
+
+// CORS 설정
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGIN,
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+const csrfProtection = csurf({ cookie: true });
+app.use(cookieParser());
+app.use(csrfProtection);
 
 // error handler
 app.use(function(err, req, res, next) {

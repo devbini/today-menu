@@ -1,14 +1,15 @@
-require("dotenv").config({ path: "/home/importent/.env" });
-// require('dotenv').config({ path: 'C:/importent/.env' });
+// require("dotenv").config({ path: "/home/importent/.env" });
+require('dotenv').config({ path: 'C:/importent/.env' });
 
 var express = require("express");
 var router = express.Router();
 var mysql = require("mysql2");
 var multer = require("multer");
-const cors = require("cors");
-const csurf = require("csurf");
-const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const csurf = require('csurf');
+
+// CSRF 보호 설정
+const csrfProtection = csurf({ cookie: true });
 
 // MySQL 쿼리 실행 함수 (요청 때 마다 연결을 생성하도록...)
 function executeQuery(query, params = []) {
@@ -42,18 +43,6 @@ function executeQuery(query, params = []) {
     });
   });
 }
-
-// CORS 설정
-const corsOptions = {
-  origin: process.env.ALLOWED_ORIGIN,
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true,
-};
-app.use(cors(corsOptions));
-
-const csrfProtection = csurf({ cookie: true });
-app.use(cookieParser());
-app.use(csrfProtection);
 
 // multer 설정 (파일 업로드에 사용)
 const storage = multer.diskStorage({
