@@ -50,7 +50,7 @@ export default function Home() {
   // Back으로부터 s3의 데이터를 받아 실행합니다.
   const fetchData = () => {
     setLoading(true);
-    fetch('https://woorung.kr/api/getdatas')
+    fetch(process.env.NEXT_PUBLIC_API_URL + '/getdatas')
       .then(response => response.json())
       .then(data => {
         setData(data);
@@ -66,6 +66,7 @@ export default function Home() {
   // 페이지 로드시 데이터 가져오기
   useEffect(() => {
     fetchData();
+    console.log(process.env.NEXT_PUBLIC_API_URL);
   }, []);
 
   // 값이 정상적으로 들어왔는지 확인합니다.
@@ -77,7 +78,7 @@ export default function Home() {
   }, [server_data]);
 
   const imageUrl = server_data && server_data.url 
-  ? `http://woorung.kr${server_data.url.replace('/var/www', '')}?timestamp=${new Date().getTime()}` 
+  ? `https://woorung.kr${server_data.url.replace('/var/www', '')}?timestamp=${new Date().getTime()}` 
   : '';
 
   // HTML

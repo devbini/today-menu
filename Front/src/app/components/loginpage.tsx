@@ -26,7 +26,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
 
     // 로그인 시도
     const handleLogin = () => {
-        fetch("https://woorung.kr/api/login", {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
