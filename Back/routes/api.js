@@ -8,6 +8,7 @@ var multer = require('multer');
 const cors = require('cors');
 const csurf = require('csurf');
 const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 // MySQL 쿼리 실행 함수 (요청 때 마다 연결을 생성하도록...)
 function executeQuery(query, params = []) {
@@ -89,7 +90,7 @@ router.get('/getdatas', async function(req, res, next) {
 });
 
 // POST /api/upload
-router.post('/upload', csrfProtection, upload.single('image'), async function(req, res, next) {
+router.post('/upload', authenticateToken, csrfProtection, upload.single('image'), async function(req, res, next) {
     try {
         const { side } = req.body;
         const filePath = '/var/www/uploads/image.jpg';
@@ -115,9 +116,10 @@ router.post('/login', csrfProtection, async function(req, res, next) {
     try {
         const results = await executeQuery(query, params);
         if (results.length > 0) {
-            res.json({ message: '1' }); // 성공
+            const token = jwt.sign({ id: results[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            res.json({ token });
         } else {
-            res.json({ message: '0' }); // 실패
+            res.status(401).json({ message: '로그인 실패' });
         }
     } catch (err) {
         console.error(err);
@@ -125,6 +127,25 @@ router.post('/login', csrfProtection, async function(req, res, next) {
 
     }
 });
+
+// JMT 체크
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(403).send('관리자 인증이 필요합니다.');
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json({ message: '다시 로그인 해 주세요.' });
+            }
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        req.user = user;
+        next();
+    });
+}
 
 // CSRF 토큰 요청
 router.get('/csrf-token', function(req, res) {
