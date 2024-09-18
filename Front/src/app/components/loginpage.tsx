@@ -23,31 +23,39 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
     // 입력 정보 저장
     const [id, setId] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [csrfToken, setCsrfToken] = useState("");
 
     // 로그인 시도
     const handleLogin = () => {
-        fetch("https://woorung.kr/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                id: id,
-                pw: password,
-            }),
-        })
-            .then((response) => response.json())
-            .then((result) => {
-                // Return이 1인 경우 로그인 성공으로 간주
-                if (result.message === "1") {
-                    onLoginSuccess();
-                } else {
-                    alert("아이디 혹은 비밀번호가 틀렸습니다!");
-                }
-            })
-            .catch((error) => {
-                console.error("Error:", error);
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/csrf-token`)
+        .then((response) => response.json())
+        .then((data) => {
+            setCsrfToken(data.csrfToken);
+
+            return fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "CSRF-Token": data.csrfToken,
+                },
+                body: JSON.stringify({
+                    id: id,
+                    pw: password,
+                }),
             });
+        })
+        .then((response) => response.json())
+        .then((result) => {
+            // 토큰 체크
+            if (result.token) {
+                onLoginSuccess();
+            } else {
+                alert("아이디 혹은 비밀번호가 틀렸습니다!");
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
     };
 
     // HTML

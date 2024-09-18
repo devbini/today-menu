@@ -53,7 +53,7 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose, onUploadSuccess }) => {
             formData.append("side", text1);
 
             // Backend 구축 必
-            fetch("https://woorung.kr/api/upload", {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
                 method: "POST",
                 body: formData,
             })
