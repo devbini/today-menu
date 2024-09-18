@@ -59,15 +59,6 @@ pipeline {
                 }
             }
         }
-
-        // Nginx 재시작 단계
-        stage('Restart Nginx') {
-            steps {
-                script {
-                    sh 'service nginx restart'
-                }
-            }
-        }
     }
 
     post {
