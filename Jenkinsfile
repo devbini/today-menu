@@ -6,6 +6,7 @@ pipeline {
         stage("🚩 Build Front") {
             steps {
                 script {
+                    sh 'cp /home/importent/.env.local ./Front/.env.local'
                     sh 'docker-compose build frontend'
                 }
             }
