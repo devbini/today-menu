@@ -9,8 +9,6 @@ services:
     container_name: frontend-container
     env_file:
       - /home/importent/.env
-    volumes:
-      - /home/importent/.env.local:/app/.env.local
     networks:
       - lunch-network
 
