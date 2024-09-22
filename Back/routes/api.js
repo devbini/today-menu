@@ -1,5 +1,5 @@
-// require("dotenv").config({ path: "/home/importent/.env" });
-require('dotenv').config({ path: 'C:/importent/.env_lunch' });
+require("dotenv").config({ path: "/home/importent/.env" });
+// require('dotenv').config({ path: 'C:/importent/.env_lunch' });
 
 var express = require("express");
 var router = express.Router();
