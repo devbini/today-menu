@@ -75,7 +75,6 @@ router.get("/getdatas", async function (req, res, next) {
       res.status(404).send("데이터 없음");
     }
   } catch (err) {
-    console.error(err);
     res.status(500).send("서버 오류");
   }
 });

@@ -66,13 +66,11 @@ export default function Home() {
   // 페이지 로드시 데이터 가져오기
   useEffect(() => {
     fetchData();
-    console.log(process.env.NEXT_PUBLIC_API_URL);
   }, []);
 
   // 값이 정상적으로 들어왔는지 확인합니다.
   useEffect(() => {
     if (server_data) {
-      console.log('🚲 DEBUG : ', server_data);
       setLoading(false);
     }
   }, [server_data]);
