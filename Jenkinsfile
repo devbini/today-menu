@@ -6,6 +6,7 @@ pipeline {
         stage("🚩 Build Front") {
             steps {
                 script {
+                    sh 'cp /home/importent/.env.local ./Front/.env.local'
                     sh 'docker-compose build frontend'
                 }
             }
@@ -56,15 +57,6 @@ pipeline {
 
                     echo "Back Service 시작! 🚀"
                     sh 'docker-compose up --build -d backend'
-                }
-            }
-        }
-
-        // Nginx 재시작 단계
-        stage('Restart Nginx') {
-            steps {
-                script {
-                    sh 'service nginx restart'
                 }
             }
         }
