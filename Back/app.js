@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var createError = require('http-errors');
 const cors = require("cors");
 const csurf = require("csurf");
 const xss = require('xss-clean');
