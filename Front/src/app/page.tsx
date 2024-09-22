@@ -72,7 +72,6 @@ export default function Home() {
   // 값이 정상적으로 들어왔는지 확인합니다.
   useEffect(() => {
     if (server_data) {
-      console.log('🚲 DEBUG : ', server_data);
       setLoading(false);
     }
   }, [server_data]);

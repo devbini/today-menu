@@ -1,5 +1,5 @@
 require("dotenv").config({ path: "/home/importent/.env" });
-// require('dotenv').config({ path: 'C:/importent/.env' });
+// require('dotenv').config({ path: 'C:/importent/.env_lunch' });
 
 var express = require("express");
 var router = express.Router();
@@ -75,7 +75,6 @@ router.get("/getdatas", async function (req, res, next) {
       res.status(404).send("데이터 없음");
     }
   } catch (err) {
-    console.error(err);
     res.status(500).send("서버 오류");
   }
 });
