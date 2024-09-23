@@ -48,7 +48,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
         .then((result) => {
             // 토큰 체크
             if (result.token) {
-                localStorage.setItem("csrftoken", csrfToken);
+                localStorage.setItem("csrfToken", csrfToken);
                 onLoginSuccess();
             } else {
                 alert("아이디 혹은 비밀번호가 틀렸습니다!");
