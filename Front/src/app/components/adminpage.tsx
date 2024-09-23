@@ -46,6 +46,13 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose, onUploadSuccess }) => {
 
     // 데이터 업로드 시도 (POST)
     const handleSubmit = () => {
+        const csrfToken = localStorage.getItem("csrfToken");
+
+        if (!csrfToken) {
+            alert("다시 로그인해 주세요.");
+            return;
+        }
+
         if (file) {
             setLoading(true); // 로딩 상태 시작
             const formData = new FormData();
@@ -55,6 +62,9 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose, onUploadSuccess }) => {
             // Backend 구축 必
             fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
                 method: "POST",
+                headers: {
+                    "CSRF-Token": csrfToken,
+                },
                 body: formData,
             })
                 .then((response) => response.json())
