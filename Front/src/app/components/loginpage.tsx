@@ -31,6 +31,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
         .then((response) => response.json())
         .then((data) => {
             setCsrfToken(data.csrfToken);
+            localStorage.setItem("csrfToken", data.csrfToken);
 
             return fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
                 method: "POST",
@@ -48,7 +49,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
         .then((result) => {
             // 토큰 체크
             if (result.token) {
-                localStorage.setItem("csrfToken", csrfToken);
                 onLoginSuccess();
             } else {
                 alert("아이디 혹은 비밀번호가 틀렸습니다!");
