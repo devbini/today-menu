@@ -1,0 +1,12 @@
+.contect-root {
+    position: absolute;
+    margin: 5rem;
+}
+
+.contect-class {
+    width: 59rem;
+    height: 59rem;
+    border: none;
+    background-color: aqua;
+    cursor: pointer;
+}
