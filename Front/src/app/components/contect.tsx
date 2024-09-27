@@ -7,13 +7,13 @@ interface contectprob {}
 // Function Component (FC)
 const Contect: React.FC<contectprob> = ({}) => {
   const F_Onlick = () => {
-    alert("리뷰!");
+    window.open("https://forms.gle/tWHsLL7B8JGie18K9", "_blank");
   };
 
   return (
     <div className="contect-root">
       <Image
-        src="./prob/contect_img"
+        src="/prob/contect_img.png"
         alt="Contect"
         className="contect-class"
         width={800}
