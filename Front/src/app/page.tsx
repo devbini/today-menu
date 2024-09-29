@@ -16,10 +16,12 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Adminpage from './components/adminpage';
+import Contectmenu from './components/contect';
 
 // CSS
 import './css/page.css';
 import './css/adminpage.css';
+import './css/contect.css';
 
 interface Data {
   url: string;
@@ -87,6 +89,8 @@ export default function Home() {
         <title>오늘의 우렁각시 메뉴</title>
         <meta name="description" content="🚗 오늘의 우렁각시 메뉴를 확인하세요!" />
       </Head>
+
+      <Contectmenu/>
 
       {/* 메인 페이지 */}
       <div className="container">

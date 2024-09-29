@@ -2,7 +2,6 @@
 
 # 구내식당 메뉴 미리보기 서비스 #
 # 작성자 : 김찬빈 (Kim Chan Been, https://github.com/devbini)
-# 코드 작성 날짜 (업데이트 날짜) : 2024-08-19
 
 # adminpage.tsx 파일 역할
 # 1. 관리자가 데이터를 서버에 업로드하는 역할
