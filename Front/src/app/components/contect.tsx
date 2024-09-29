@@ -1,3 +1,13 @@
+/********************************************************************
+
+# 구내식당 메뉴 미리보기 서비스 #
+# 작성자 : 김찬빈 (Kim Chan Been, https://github.com/devbini)
+
+# contect.tsx 파일 역할
+# 1. 구글 폼으로 연결하는 버튼 추가
+
+*********************************************************************/
+
 import React from "react";
 import Image from "next/image";
 import "../css/contect.css";
