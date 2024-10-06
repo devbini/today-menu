@@ -10,7 +10,7 @@
 
 *********************************************************************/
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // 함수형 컴포넌트의 매게변수 전용
 interface LoginPageProps {
@@ -23,38 +23,64 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
     // 입력 정보 저장
     const [id, setId] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [csrfToken, setCsrfToken] = useState("");
+    const [csrfToken, setCsrfToken] = useState<string>("");
+    const hasFetchedCsrfToken = useRef(false);  // CSRF 토큰을 이미 요청했는지 여부 저장
+
+    // CSRF 토큰을 페이지가 로드될 때 한 번 받아옴
+    useEffect(() => {
+        if (hasFetchedCsrfToken.current) return;
+        hasFetchedCsrfToken.current = true;
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/csrf-token`, {
+            method: 'GET',
+            credentials: 'include', // 쿠키 전송 설정
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                setCsrfToken(data.csrfToken);
+            })
+            .catch((error) => {
+                console.error("CSRF 토큰 요청 에러:", error);
+            });
+    }, []);
 
     // 로그인 시도
     const handleLogin = () => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/csrf-token`)
-        .then((response) => response.json())
-        .then((data) => {
-            setCsrfToken(data.csrfToken);
+        if (!csrfToken) {
+            alert("CSRF 토큰이 없습니다.");
+            return;
+        }
 
-            return fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "CSRF-Token": data.csrfToken,
-                },
-                body: JSON.stringify({
-                    id: id,
-                    pw: password,
-                }),
-            });
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "CSRF-Token": csrfToken, // 미리 받아온 CSRF 토큰 사용
+            },
+            credentials: 'include', // 쿠키 전송 설정
+            body: JSON.stringify({
+                id: id,
+                pw: password,
+            }),
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("로그인 실패: 잘못된 응답");
+        })
         .then((result) => {
-            // 토큰 체크
             if (result.token) {
+                // 로그인 성공 시 토큰을 로컬 스토리지 또는 쿠키에 저장
+                localStorage.setItem("token", result.token);
                 onLoginSuccess();
             } else {
-                alert("아이디 혹은 비밀번호가 틀렸습니다!");
+                alert("아이디 또는 비밀번호가 잘못되었습니다.");
             }
         })
         .catch((error) => {
-            console.error("Error:", error);
+            console.error("로그인 에러:", error);
+            alert("로그인 중 오류가 발생했습니다. 다시 시도해 주세요.");
         });
     };
 

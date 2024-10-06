@@ -1,5 +1,5 @@
-require("dotenv").config({ path: "/home/importent/.env" });
-// require('dotenv').config({ path: 'C:/importent/.env_lunch' });
+// require("dotenv").config({ path: "/home/importent/.env" });
+require('dotenv').config({ path: 'C:/importent/.env_lunch' });
 
 var express = require("express");
 var router = express.Router();
@@ -104,7 +104,7 @@ router.post(
 );
 
 // POST /api/login
-router.post("/login", csrfProtection, async function (req, res, next) {
+router.post("/login", async function (req, res, next) {
   const { id, pw } = req.body;
 
   const query = "SELECT * FROM admin_tb WHERE id = ? AND password = ?";
@@ -122,7 +122,11 @@ router.post("/login", csrfProtection, async function (req, res, next) {
         maxAge: 60 * 10 * 1000, // 10분
       });
 
-      res.json({ token });
+      // CSRF 토큰을 함께 반환
+      res.json({
+        token,
+        csrfToken: req.session.csrfToken, // 세션에서 CSRF 토큰 반환
+      });
     } else {
       res.status(401).json({ message: "로그인 실패" });
     }
@@ -150,9 +154,15 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// CSRF 토큰 요청
+// CSRF 토큰을 세션에 저장하고 재사용
 router.get("/csrf-token", function (req, res) {
-  res.json({ csrfToken: req.csrfToken() });
+  console.log('세션 상태:', req.session); 
+  console.log(req.csrfToken());
+  if (!req.session.csrfToken) {
+    req.session.csrfToken = req.csrfToken();
+  }
+
+  res.json({ csrfToken: req.session.csrfToken });
 });
 
 module.exports = router;
