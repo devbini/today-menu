@@ -51,10 +51,19 @@ const AdminPage: React.FC<AdminpageProps> = ({ onClose, onUploadSuccess }) => {
             formData.append("image", file);
             formData.append("side", text1);
 
-            // Backend 구축 必
+            if (!localStorage.getItem('csrfToken')) {
+                alert("CSRF 토큰이 없습니다. 다시 로그인 해 주세요.");
+                setLoading(false);
+                return;
+            }
+
             fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
                 method: "POST",
+                headers: {
+                    "CSRF-Token": `${localStorage.getItem('csrfToken')}`
+                },
                 body: formData,
+                credentials: 'include',
             })
                 .then((response) => response.json())
                 .then((data) => {

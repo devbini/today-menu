@@ -23,21 +23,20 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
     // 입력 정보 저장
     const [id, setId] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [csrfToken, setCsrfToken] = useState<string>("");
     const hasFetchedCsrfToken = useRef(false);  // CSRF 토큰을 이미 요청했는지 여부 저장
 
     // CSRF 토큰을 페이지가 로드될 때 한 번 받아옴
     useEffect(() => {
         if (hasFetchedCsrfToken.current) return;
         hasFetchedCsrfToken.current = true;
-        alert("A");
+        
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/csrf-token`, {
             method: 'GET',
             credentials: 'include', // 쿠키 전송 설정
         })
             .then((response) => response.json())
             .then((data) => {
-                setCsrfToken(data.csrfToken);
+                localStorage.setItem('csrfToken', data.csrfToken);
             })
             .catch((error) => {
                 console.error("CSRF 토큰 요청 에러:", error);
@@ -46,7 +45,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
 
     // 로그인 시도
     const handleLogin = () => {
-        if (!csrfToken) {
+        if (!localStorage.getItem('csrfToken')) {
             alert("CSRF 토큰이 없습니다.");
             return;
         }
@@ -55,7 +54,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "CSRF-Token": csrfToken, // 미리 받아온 CSRF 토큰 사용
+                "CSRF-Token": `${localStorage.getItem('csrfToken')}`, // 미리 받아온 CSRF 토큰 사용
             },
             credentials: 'include', // 쿠키 전송 설정
             body: JSON.stringify({
