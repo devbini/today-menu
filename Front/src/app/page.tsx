@@ -34,6 +34,9 @@ export default function Home() {
   const [server_data, setData] = useState<Data | undefined>();
   const [error, setError] = useState<string | undefined>();
 
+  // 이미지 URL 상태
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
+
   // 관리자 전용 팝업 ON / OFF용 변수&함수
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
@@ -74,12 +77,13 @@ export default function Home() {
   useEffect(() => {
     if (server_data) {
       setLoading(false);
+      if (!imageUrl) {
+        const imgUrl = `https://woorung.kr${server_data.url.replace('/var/www', '')}?timestamp=${new Date().getTime()}`;
+        setImageUrl(imgUrl);
+        setLoading(false);  
+      }
     }
   }, [server_data]);
-
-  const imageUrl = server_data && server_data.url 
-  ? `https://woorung.kr${server_data.url.replace('/var/www', '')}?timestamp=${new Date().getTime()}` 
-  : '';
 
   // HTML
   return (
