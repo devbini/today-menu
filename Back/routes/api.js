@@ -1,5 +1,9 @@
-// require("dotenv").config({ path: "/home/importent/.env" });
-require('dotenv').config({ path: 'C:/importent/.env_lunch' });
+const envPath = process.platform === "win32" 
+  ? "C:/importent/.env_lunch"   // Windows 경로
+  : "/home/importent/.env";     // Linux 경로
+
+// .env 파일 로드
+require('dotenv').config({ path: envPath });
 
 var express = require("express");
 var router = express.Router();
