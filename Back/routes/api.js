@@ -7,6 +7,7 @@ var mysql = require("mysql2");
 var multer = require("multer");
 const jwt = require("jsonwebtoken");
 const csurf = require('csurf');
+const fs = require("fs");
 
 // CSRF 보호 설정
 const csrfProtection = csurf({ cookie: true });
@@ -47,12 +48,24 @@ function executeQuery(query, params = []) {
 // multer 설정 (파일 업로드에 사용)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "/var/www/uploads/");
+    const uploadPath = process.platform === 'win32'
+      ? 'C:/uploads/'
+      : '/var/www/uploads/';
+
+    // 경로 확인
+    fs.access(uploadPath, fs.constants.W_OK, (err) => {
+      if (err) {
+        console.error("경로가 존재하지 않거나 쓰기 권한이 없습니다:", uploadPath);
+        return cb(new Error("경로가 존재하지 않거나 쓰기 권한이 없습니다"));
+      }
+      cb(null, uploadPath);
+    });
   },
   filename: (req, file, cb) => {
     cb(null, "image.jpg");
   },
 });
+
 const upload = multer({
   storage: storage,
   limits: { fileSize: 50 * 1024 * 1024 },
@@ -86,18 +99,25 @@ router.post(
   csrfProtection,
   upload.single("image"),
   async function (req, res, next) {
+    console.log("파일 업로드 처리 시작");
+
     try {
+      if (!req.file) {
+        console.log("파일이 업로드되지 않았습니다.");
+        throw new Error("파일이 업로드되지 않았습니다.");
+      }
+
       const { side } = req.body;
       const filePath = "/var/www/uploads/image.jpg";
 
-      const query =
-        "INSERT INTO menu_tb (url, date, side) VALUES (?, NOW(), ?)";
+      const query = "INSERT INTO menu_tb (url, date, side) VALUES (?, NOW(), ?)";
       const params = [filePath, side];
+
       await executeQuery(query, params);
 
       res.status(200).json({ message: "파일 업로드 성공" });
     } catch (err) {
-      console.error(err);
+      console.error("파일 업로드 중 오류 발생:", err);  // 파일 업로드 오류 로그
       res.status(500).send("파일 업로드 오류");
     }
   }
@@ -136,17 +156,15 @@ router.post("/login", async function (req, res, next) {
   }
 });
 
-// JMT 체크
+// JWT 인증 미들웨어
 function authenticateToken(req, res, next) {
   const token = req.cookies.jwt;
-  if (!token)
+  if (!token) {
     return res.status(403).json({ message: "관리자 인증이 필요합니다." });
+  }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      if (err.name === "TokenExpiredError") {
-        return res.status(401).json({ message: "다시 로그인 해 주세요." });
-      }
       return res.status(403).json({ message: "유효하지 않은 토큰입니다." });
     }
     req.user = user;
