@@ -156,12 +156,9 @@ function authenticateToken(req, res, next) {
 
 // CSRF 토큰을 세션에 저장하고 재사용
 router.get("/csrf-token", function (req, res) {
-  console.log('세션 상태:', req.session); 
-  console.log(req.csrfToken());
   if (!req.session.csrfToken) {
     req.session.csrfToken = req.csrfToken();
   }
-
   res.json({ csrfToken: req.session.csrfToken });
 });
 

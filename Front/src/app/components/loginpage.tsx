@@ -30,7 +30,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onClose }) => {
     useEffect(() => {
         if (hasFetchedCsrfToken.current) return;
         hasFetchedCsrfToken.current = true;
-
+        alert("A");
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/csrf-token`, {
             method: 'GET',
             credentials: 'include', // 쿠키 전송 설정
