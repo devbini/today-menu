@@ -10,18 +10,18 @@
 
 *********************************************************************/
 
-'use client'
+"use client";
 
 // lib list
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
-import Adminpage from './components/adminpage';
-import Contectmenu from './components/contect';
+import { useEffect, useState } from "react";
+import Head from "next/head";
+import Adminpage from "./components/adminpage";
+import Contectmenu from "./components/contect";
 
 // CSS
-import './css/page.css';
-import './css/adminpage.css';
-import './css/contect.css';
+import "./css/page.css";
+import "./css/adminpage.css";
+import "./css/contect.css";
 
 interface Data {
   url: string;
@@ -55,18 +55,17 @@ export default function Home() {
   // Back으로부터 s3의 데이터를 받아 실행합니다.
   const fetchData = () => {
     setLoading(true);
-    fetch(process.env.NEXT_PUBLIC_API_URL + '/getdatas')
-      .then(response => response.json())
-      .then(data => {
+    fetch(process.env.NEXT_PUBLIC_API_URL + "/getdatas")
+      .then((response) => response.json())
+      .then((data) => {
         setData(data);
         setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         setError(error.toString());
         setLoading(false);
       });
   };
-
 
   // 페이지 로드시 데이터 가져오기
   useEffect(() => {
@@ -78,9 +77,12 @@ export default function Home() {
     if (server_data) {
       setLoading(false);
       if (!imageUrl) {
-        const imgUrl = `https://woorung.kr${server_data.url.replace('/var/www', '')}?timestamp=${new Date().getTime()}`;
+        const imgUrl = `https://woorung.kr${server_data.url.replace(
+          "/var/www",
+          ""
+        )}?timestamp=${new Date().getTime()}`;
         setImageUrl(imgUrl);
-        setLoading(false);  
+        setLoading(false);
       }
     }
   }, [server_data]);
@@ -91,36 +93,63 @@ export default function Home() {
       {/* SSO 추가 */}
       <Head>
         <title>오늘의 우렁각시 메뉴</title>
-        <meta name="description" content="🚗 오늘의 우렁각시 메뉴를 확인하세요!" />
+        <meta
+          name="description"
+          content="🚗 오늘의 우렁각시 메뉴를 확인하세요!"
+        />
       </Head>
 
-      <Contectmenu/>
+      <Contectmenu />
 
       {/* 메인 페이지 */}
       <div className="container">
-        <h1>오늘의 우렁각시 메뉴</h1>
+        <div className="main-box-1">
+          <h1>오늘의 우렁각시 메뉴</h1>
 
-        {loading ? (
-          <p>데이터를 불러오는 중입니다. . .</p>
-        ) : error ? (
-          <p>{error}</p>
-        ) : server_data ? (
-          <div className="menu-card">
-            <img
-              src={imageUrl}
-              alt="오늘의 메뉴"
-            />
-            <p className='date'>{server_data.date.substring(0, 10)}</p>
-            <p className='side'>사이드 : {server_data.side}</p>
+          {loading ? (
+            <p>데이터를 불러오는 중입니다. . .</p>
+          ) : error ? (
+            <p>{error}</p>
+          ) : server_data ? (
+            <div className="menu-card">
+              <img src={imageUrl} alt="오늘의 메뉴" />
+              <p className="date">{server_data.date.substring(0, 10)}</p>
+              <p className="side">사이드 : {server_data.side}</p>
+            </div>
+          ) : null}
+
+          <button className="admin-button" onClick={handlePopupOpen}>
+            Staff Only
+          </button>
+
+          {/* 관리자 전용 팝업 페이지 제공 */}
+          {isPopupOpen && (
+            <Adminpage onClose={handlePopupClose} onUploadSuccess={fetchData} />
+          )}
+        </div>
+
+        {/* 리뷰 페이지 */}
+        <div className="review-column">
+          <h2>리뷰 작성하기</h2>
+
+          {/* 리뷰 작성 인풋 */}
+          <div className="review-input">
+            <input type="text" placeholder="리뷰를 입력하세요" />
+            <button>전송</button>
           </div>
-        ) : null}
 
-  <button className='admin-button' onClick={handlePopupOpen}>Staff Only</button>
-
-        {/* 관리자 전용 팝업 페이지 제공 */}
-        {isPopupOpen && (
-          <Adminpage onClose={handlePopupClose} onUploadSuccess={fetchData}/>
-        )}
+          {/* 리뷰 목록 */}
+          <ul className="review-list">
+            <li className="review-item">
+              <div className="review-content">맛있었습니다!</div>
+              <div className="review-date">2025-03-03 16:30</div>
+            </li>
+            <li className="review-item">
+              <div className="review-content">양이 좀 적었어요</div>
+              <div className="review-date">2025-03-03 16:35</div>
+            </li>
+          </ul>
+        </div>
       </div>
     </>
   );
