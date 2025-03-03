@@ -46,15 +46,22 @@ h1 {
     text-align: center;
 }
 
+.title-box-with-admin-button {
+    display: flex;
+    flex-flow: row;
+    font-weight: bold;
+    font-size: 2rem;
+    align-items: anchor-center;
+    justify-content: space-between;
+}
+
 /* 어드민 페이지 접근 버튼 */
 .admin-button {
     background-color: #3498db;
-    width: 100%;
+    width: 20%;
     height: 6vh;
-    margin-top: 20px;
     border: none;
     text-align: center;
-    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     font-weight: 900;
@@ -79,7 +86,7 @@ h1 {
 /* 오른쪽 컬럼 (리뷰) */
 .review-column {
     flex: 1;
-    margin-top: 9.5vh;
+    margin-top: 9.4vh;
     background-color: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
@@ -146,21 +153,46 @@ h1 {
 .star-rating {
     display: flex;
     gap: 0.2rem;
-    font-size: 24px; /* 별 크기 조절 */
+    font-size: 24px;
+    /* 별 크기 조절 */
     cursor: pointer;
     user-select: none;
     margin-bottom: 10px;
-  }
-  
-  .star {
-    color: #ccc; /* 기본 별 색상 (회색) */
-  }
-  .star:hover,
-  .star:hover ~ .star {
-    color: #ffc107; /* 호버 시 별 색상 (노란색) */
-  }
+}
 
-  .review-rating {
+.star {
+    color: #ccc;
+    /* 기본 별 색상 (회색) */
+}
+
+.star:hover,
+.star:hover~.star {
+    color: #ffc107;
+    /* 호버 시 별 색상 (노란색) */
+}
+
+.review-rating {
     margin-bottom: 0.2rem;
     font-size: 1rem;
-  }
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-flow: column;
+    }
+
+    .title-box-with-admin-button {
+        flex-flow: column;
+        gap: 10px;
+    }
+
+    .admin-button {
+        width: 100%;
+        height: 3rem;
+    }
+
+    .review-column {
+        margin-top: 0.5vh;
+        height: 100%;
+    }
+}

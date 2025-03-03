@@ -139,7 +139,12 @@ export default function Home() {
       {/* 메인 페이지 */}
       <div className="container">
         <div className="main-box-1">
-          <h1>오늘의 우렁각시 메뉴</h1>
+          <span className="title-box-with-admin-button">
+            오늘의 우렁각시 메뉴
+            <button className="admin-button" onClick={handlePopupOpen}>
+              관리자 전용
+            </button>
+          </span>
 
           {loading ? (
             <p>데이터를 불러오는 중입니다. . .</p>
@@ -152,10 +157,6 @@ export default function Home() {
               <p className="side">사이드 : {server_data.side}</p>
             </div>
           ) : null}
-
-          <button className="admin-button" onClick={handlePopupOpen}>
-            Staff Only
-          </button>
         </div>
 
         {/* 리뷰 페이지 */}
