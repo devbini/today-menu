@@ -141,3 +141,26 @@ h1 {
     color: #666;
     text-align: right;
 }
+
+/* 별점 영역 */
+.star-rating {
+    display: flex;
+    gap: 0.2rem;
+    font-size: 24px; /* 별 크기 조절 */
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 10px;
+  }
+  
+  .star {
+    color: #ccc; /* 기본 별 색상 (회색) */
+  }
+  .star:hover,
+  .star:hover ~ .star {
+    color: #ffc107; /* 호버 시 별 색상 (노란색) */
+  }
+
+  .review-rating {
+    margin-bottom: 0.2rem;
+    font-size: 1rem;
+  }

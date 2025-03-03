@@ -40,6 +40,8 @@ export default function Home() {
   // 관리자 전용 팝업 ON / OFF용 변수&함수
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
+  const [rating, setRating] = useState(5);
+
   const handlePopupOpen = () => {
     setIsPopupOpen(true);
   };
@@ -132,21 +134,39 @@ export default function Home() {
         <div className="review-column">
           <h2>리뷰 작성하기</h2>
 
+          <div className="star-rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                className="star"
+                style={{ color: star <= rating ? "#ffc107" : "#ccc" }}
+                onClick={() => setRating(star)}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+
           {/* 리뷰 작성 인풋 */}
           <div className="review-input">
-            <input type="text" placeholder="리뷰를 입력하세요" />
+            <input type="text" placeholder="리뷰를 입력하세요!" />
             <button>전송</button>
           </div>
 
           {/* 리뷰 목록 */}
           <ul className="review-list">
-            <li className="review-item">
-              <div className="review-content">맛있었습니다!</div>
-              <div className="review-date">2025-03-03 16:30</div>
-            </li>
-            <li className="review-item">
-              <div className="review-content">양이 좀 적었어요</div>
-              <div className="review-date">2025-03-03 16:35</div>
+            <li className="review-item" key="1">
+              <div className="review-content">
+                <div className="review-rating">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <span key={i} style={{ color: i < 3 ? "#ffc107" : "#ccc" }}>
+                      ★
+                    </span>
+                  ))}
+                </div>
+                맛있었어요.
+              </div>
+              <div className="review-date">2025-03-01 13:12</div>
             </li>
           </ul>
         </div>
