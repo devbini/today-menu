@@ -91,6 +91,12 @@ export default function Home() {
   };
 
   const getReviewData = () => {
+    // const dummyReviews: Review[] = Array.from({ length: 100 }, (_, index) => ({
+    //   message: `더미 리뷰 메시지 ${index + 1}`,
+    //   date: new Date().toLocaleString("ko-KR"),
+    //   rate: Math.floor(Math.random() * 5) + 1,
+    // }));
+    // setReview_Data(dummyReviews);
     fetch(process.env.NEXT_PUBLIC_API_URL + "/getreviews")
       .then((response) => response.json())
       .then((data: Review[]) => {
