@@ -77,6 +77,11 @@ export default function Home() {
   // 로딩 화면
   const [loading, setLoading] = useState<boolean>(true);
 
+  const formatDate = (dateString: string): string => {
+    return dateString.substring(0, 10) + " " + dateString.substring(11, 16);
+  };
+  
+
   // 웹 접속 시 처음 한 번 실행하는 함수,
   // Back으로부터 s3의 데이터를 받아 실행합니다.
   const fetchData = () => {
@@ -249,7 +254,7 @@ export default function Home() {
                       </div>
                       {review.message}
                     </div>
-                    <div className="review-date">{review.date}</div>
+                    <div className="review-date">{formatDate(review.date)}</div>
                   </li>
                 )
               )}
