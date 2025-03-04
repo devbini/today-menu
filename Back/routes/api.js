@@ -141,15 +141,15 @@ router.post(
 
 // POST /api/uploadReview
 router.post("/uploadReview", async function (req, res, next) {
-  const { message, rate } = req.body;
+  const { message, rating } = req.body;
   
   // 값 유효성 검증 (간단하게)
-  if (!message || !rate ) {
+  if (!message || !rating ) {
     return res.status(400).json({ message: "필수 데이터가 누락되었습니다." });
   }
   
   const query = "INSERT INTO review_tb (message, date, rate) VALUES (?, NOW(), ?);";
-  const params = [message, rate];
+  const params = [message, rating];
   
   try {
     await executeQuery(query, params);
