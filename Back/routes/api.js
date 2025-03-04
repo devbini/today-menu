@@ -193,6 +193,43 @@ router.post("/login", async function (req, res, next) {
   }
 });
 
+// GET /api/visitCount
+router.get("/visitCount", async function (req, res, next) {
+  const today = new Date().toISOString().slice(0, 10);
+  const query = "SELECT count FROM visit_count WHERE date = ?";
+  
+  try {
+    const results = await executeQuery(query, [today]);
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.json({ count: 0 });
+    }
+  } catch (err) {
+    console.error("접속자 카운트 읽기 오류:", err);
+    res.status(500).send("읽기 오류 발생");
+  }
+});
+
+// POST /api/incrementVisitCount
+router.post("/incrementVisitCount", async function (req, res, next) {
+  const today = new Date().toISOString().slice(0, 10);
+  const updateQuery = "UPDATE visit_count SET count = count + 1 WHERE date = ?";
+  const insertQuery = "INSERT INTO visit_count (date, count) VALUES (?, 1)";
+  
+  try {
+    const result = await executeQuery(updateQuery, [today]);
+    if (result.affectedRows === 0) {
+      await executeQuery(insertQuery, [today]);
+    }
+    res.status(200).json({ message: "증가 성공!" });
+  } catch (err) {
+    console.error("접속자 카운트 증가 오류:", err);
+    res.status(500).send("오류 발생");
+  }
+});
+
+
 // JWT 인증 미들웨어
 function authenticateToken(req, res, next) {
   const token = req.cookies.jwt;
