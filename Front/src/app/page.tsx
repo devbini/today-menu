@@ -55,6 +55,9 @@ export default function Home() {
   const [message, setmessage] = useState("");
   const [rating, setRating] = useState(5);
 
+  // 접속자 카운드
+  const [visitcount, setvisitcount] = useState(0);
+
   const handlePopupOpen = () => {
     setIsPopupOpen(true);
   };
@@ -90,13 +93,19 @@ export default function Home() {
       });
   };
 
+  // 카운트 읽기 함수
+  const getVisitCount = () => {
+    fetch(process.env.NEXT_PUBLIC_API_URL + "/visitCount")
+      .then((response) => response.json())
+      .then((data) => {
+        setvisitcount(data);
+      })
+      .catch((error) => {
+        setError(error.toString());
+      });
+  };
+
   const getReviewData = () => {
-    // const dummyReviews: Review[] = Array.from({ length: 100 }, (_, index) => ({
-    //   message: `더미 리뷰 메시지 ${index + 1}`,
-    //   date: new Date().toLocaleString("ko-KR"),
-    //   rate: Math.floor(Math.random() * 5) + 1,
-    // }));
-    // setReview_Data(dummyReviews);
     fetch(process.env.NEXT_PUBLIC_API_URL + "/getreviews")
       .then((response) => response.json())
       .then((data: Review[]) => {
@@ -107,10 +116,32 @@ export default function Home() {
       });
   };
 
+  // 방문자 수 증가
+  const handleVisitUpdate = () => {
+    const formData = new FormData();
+
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/incrementVisitCount`, {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("방문자 수 증가 완료!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("등록 중 오류가 발생했습니다.");
+      });
+
+    getVisitCount();
+  };
+
   // 페이지 로드시 데이터 가져오기
   useEffect(() => {
     fetchData();
     getReviewData();
+    handleVisitUpdate();
   }, []);
 
   // 값이 정상적으로 들어왔는지 확인합니다.
@@ -167,6 +198,7 @@ export default function Home() {
 
         {/* 리뷰 페이지 */}
         <div className="review-column">
+          <span className="visit-counter">오늘의 방문자 수 : {visitcount}</span>
           <h2>리뷰 작성하기</h2>
 
           <div className="star-rating">
