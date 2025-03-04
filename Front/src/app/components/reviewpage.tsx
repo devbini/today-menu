@@ -25,13 +25,15 @@ const ReviewPopup: React.FC<ReviewPopupProps> = ({
 }) => {
   // 데이터 업로드 시도 (POST)
   const handleSubmit = () => {
-    const formData = new FormData();
-    formData.append("message", reviewMessage);
-    formData.append("rating", reviewRating.toString());
-
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/uploadReview`, {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: reviewMessage,
+        rating: reviewRating.toString(),
+      }),
       credentials: "include",
     })
       .then((response) => response.json())
