@@ -96,6 +96,18 @@ router.get("/getdatas", async function (req, res, next) {
   }
 });
 
+// GET /api/getreviews
+router.get("/getreviews", async function (req, res, next) {
+  const query = "SELECT message, date, rate FROM review_tb ORDER BY date DESC;";
+  try {
+    const results = await executeQuery(query);
+    res.json(results);
+  } catch (err) {
+    console.error("리뷰 데이터 가져오기 오류:", err);
+    res.status(500).send("서버 오류");
+  }
+});
+
 // POST /api/upload
 router.post(
   "/upload",
@@ -126,6 +138,27 @@ router.post(
     }
   }
 );
+
+// POST /api/uploadReview
+router.post("/uploadReview", async function (req, res, next) {
+  const { message, rate } = req.body;
+  
+  // 값 유효성 검증 (간단하게)
+  if (!message || !rate ) {
+    return res.status(400).json({ message: "필수 데이터가 누락되었습니다." });
+  }
+  
+  const query = "INSERT INTO review_tb (message, date, rate) VALUES (?, NOW(), ?);";
+  const params = [message, rate];
+  
+  try {
+    await executeQuery(query, params);
+    res.status(200).json({ message: "리뷰 등록 성공" });
+  } catch (err) {
+    console.error("리뷰 등록 오류:", err);
+    res.status(500).send("리뷰 등록 오류");
+  }
+});
 
 // POST /api/login
 router.post("/login", async function (req, res, next) {
@@ -159,6 +192,43 @@ router.post("/login", async function (req, res, next) {
     res.status(500).send("서버 오류");
   }
 });
+
+// GET /api/visitCount
+router.get("/visitCount", async function (req, res, next) {
+  const today = new Date().toISOString().slice(0, 10);
+  const query = "SELECT count FROM visit_count WHERE date = ?";
+  
+  try {
+    const results = await executeQuery(query, [today]);
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.json({ count: 0 });
+    }
+  } catch (err) {
+    console.error("접속자 카운트 읽기 오류:", err);
+    res.status(500).send("읽기 오류 발생");
+  }
+});
+
+// POST /api/incrementVisitCount
+router.post("/incrementVisitCount", async function (req, res, next) {
+  const today = new Date().toISOString().slice(0, 10);
+  const updateQuery = "UPDATE visit_count SET count = count + 1 WHERE date = ?";
+  const insertQuery = "INSERT INTO visit_count (date, count) VALUES (?, 1)";
+  
+  try {
+    const result = await executeQuery(updateQuery, [today]);
+    if (result.affectedRows === 0) {
+      await executeQuery(insertQuery, [today]);
+    }
+    res.status(200).json({ message: "증가 성공!" });
+  } catch (err) {
+    console.error("접속자 카운트 증가 오류:", err);
+    res.status(500).send("오류 발생");
+  }
+});
+
 
 // JWT 인증 미들웨어
 function authenticateToken(req, res, next) {
