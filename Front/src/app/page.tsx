@@ -98,7 +98,7 @@ export default function Home() {
     fetch(process.env.NEXT_PUBLIC_API_URL + "/visitCount")
       .then((response) => response.json())
       .then((data) => {
-        setvisitcount(data);
+        setvisitcount(data.count);
       })
       .catch((error) => {
         setError(error.toString());
