@@ -54,7 +54,12 @@ app.use(cors(corsOptions));
 // CSRF 보호 및 쿠키 파서 추가
 app.use(cookieParser());
 const csrfProtection = csurf({ cookie: true });
-app.use(csrfProtection);
+app.use((req, res, next) => {
+  if (req.path === '/api/incrementVisitCount' || req.path === '/api/uploadReview') {
+    return next();
+  }
+  csrfProtection(req, res, next);
+});
 
 // 라우터 설정
 app.use('/api', apiRouter);
