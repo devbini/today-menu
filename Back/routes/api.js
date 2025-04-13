@@ -25,6 +25,7 @@ function executeQuery(query, params = []) {
       user: process.env.DB_USER,
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
+      timezone: "Z",
     });
 
     // 연결 시도

@@ -159,6 +159,17 @@ export default function Home() {
     }
   }, [server_data]);
 
+  // 시간 포메팅
+  function formatDateKST(dateStr: string): string {
+    const d = new Date(new Date(dateStr).getTime() + 9 * 60 * 60 * 1000);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    return `${yyyy}년 ${mm}월 ${dd}일 ${hh}시 ${mi}분`;
+  }
+
   // HTML
   return (
     <>
@@ -249,7 +260,7 @@ export default function Home() {
                       </div>
                       {review.message}
                     </div>
-                    <div className="review-date">{review.date}</div>
+                    <div className="review-date">{formatDateKST(review.date)}</div>
                   </li>
                 )
               )}
