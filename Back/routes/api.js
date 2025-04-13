@@ -13,6 +13,15 @@ const jwt = require("jsonwebtoken");
 const csurf = require('csurf');
 const fs = require("fs");
 
+// 현재 시간 읽는 함수
+function getTimeStamp() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  return `${yyyy}${mm}${dd}`;
+}
+
 // CSRF 보호 설정
 const csrfProtection = csurf({ cookie: true });
 
@@ -67,7 +76,8 @@ const storage = multer.diskStorage({
     });
   },
   filename: (req, file, cb) => {
-    cb(null, "image.jpg");
+    const timeStamp = getTimeStamp();
+    cb(null, `${timeStamp}_image.jpg`);
   },
 });
 
@@ -125,7 +135,9 @@ router.post(
       }
 
       const { side } = req.body;
-      const filePath = "/var/www/uploads/image.jpg";
+      const tieestamp = getTimeStamp();
+      const fileName = `${tieestamp}_image.jpg`;
+      const filePath = `/var/www/uploads/${fileName}`;
 
       const query = "INSERT INTO menu_tb (url, date, side) VALUES (?, NOW(), ?)";
       const params = [filePath, side];
