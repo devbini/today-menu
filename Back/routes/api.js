@@ -160,7 +160,7 @@ router.post("/uploadReview", async function (req, res, next) {
   if (!message || !rating ) {
     return res.status(400).json({ message: "필수 데이터가 누락되었습니다." });
   }
-  
+
   const query = "INSERT INTO review_tb (message, date, rate) VALUES (?, NOW(), ?);";
   const params = [message, rating];
   
