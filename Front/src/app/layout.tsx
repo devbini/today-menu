@@ -1,5 +1,6 @@
-import Head from "next/head";
 import React from "react";
+import Script from "next/script";
+
 import "./css/globals.css";
 import "./css/page.css";
 
@@ -13,36 +14,46 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaId = process.env.NEXT_PUBLIC_GKEY;
+
   return (
-    <html lang="en">
-      <Head>
-        {/* Google Analytics script */}
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GKEY}`}
-        ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${process.env.NEXT_PUBLIC_GKEY}');
-            `,
-          }}
-        />
-      </Head>
+    <html lang="ko">
       <body>
         <main>{children}</main>
 
         {/* 사이트 공통 푸터 */}
         <footer className="site-footer">
-          <p>© {new Date().getFullYear()} Chanbeen Kim All Rights Reserved.</p>
+          <p>
+            © {new Date().getFullYear()} ChanBeen Kim. All Rights Reserved.
+          </p>
           <p>
             본 사이트는 개발자의 개인 프로젝트 일환으로, 영리적 수익 없이
             운영되고 있습니다.
           </p>
         </footer>
+
+        {/* 4. Google Analytics */}
+        {gaId && (
+          <>
+            <Script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="gtag-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}');
+                `,
+              }}
+            />
+          </>
+        )}
       </body>
     </html>
   );
