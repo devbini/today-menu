@@ -1,0 +1,28 @@
+name: Azure Static Web CI/CD (BACK)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Back/**'
+
+env:
+  AZURE_WEBAPP_NAME: 'woorung-back'
+  NODE_VERSION: '22.x'
+  PACKAGE_PATH: 'Back'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: 🪛 Backend 빌드 및 배포 작업
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: ☕ 배포
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ env.PACKAGE_PATH }}
