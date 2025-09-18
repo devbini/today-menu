@@ -30,6 +30,9 @@ function executeQuery(query, params = []) {
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
       timezone: "Z",
+      ssl: {
+        rejectUnauthorized: false,
+      },
     });
 
     // 연결 시도
