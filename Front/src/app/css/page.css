@@ -107,6 +107,7 @@ h1 {
 .main-box-1 {
   flex: 1;
   max-width: 650px;
+  max-height: 70vh;
 }
 
 /* 오른쪽 컬럼 (리뷰) */
@@ -118,7 +119,7 @@ h1 {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-medium);
   border: 1px solid var(--border-color);
-  max-height: 132.5vh;
+  max-height: 70vh;
   overflow-y: auto;
 }
 
