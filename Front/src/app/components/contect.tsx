@@ -22,14 +22,19 @@ const Contect: React.FC<contectprob> = ({}) => {
 
   return (
     <div className="contect-root">
-      <Image
-        src="/prob/contect_img.png"
-        alt="Contect"
-        className="contect-class"
-        width={800}
-        height={800}
+      <button
+        className="contect-button"
         onClick={() => F_Onlick()}
-      ></Image>
+        aria-label="문의하기 (새 창 열림)"
+      >
+        <Image
+          src="/prob/contect_img.png"
+          alt="문의하기"
+          className="contect-class"
+          width={800}
+          height={800}
+        ></Image>
+      </button>
     </div>
   );
 };
