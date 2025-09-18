@@ -1,18 +1,16 @@
 /********************************************************************
 
-  # 구내식당 메뉴 미리보기 서비스 #
-  # 작성자 : 김찬빈 (Kim Chan Been, https://github.com/devbini)
-  # 코드 작성 날짜 (업데이트 날짜) : 2024-08-19
+ # 구내식당 메뉴 미리보기 서비스 #
+ # 작성자 : 김찬빈 (Kim Chan Been, https://github.com/devbini)
 
-  # page.tsx 파일 역할
-  # 1. 사용자가 마주하는 첫 화면
-  # 2. 오늘의 메뉴를 바로 보여줌
+ # page.tsx 파일 역할
+ # 1. 사용자가 마주하는 첫 화면
+ # 2. 오늘의 메뉴를 바로 보여줌
 
-*********************************************************************/
+ *********************************************************************/
 
 "use client";
 
-// lib list
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import Adminpage from "./components/adminpage";
@@ -23,6 +21,7 @@ import "./css/page.css";
 import "./css/adminpage.css";
 import "./css/contect.css";
 import ReviewPopup from "./components/reviewpage";
+import Image from "next/image";
 
 interface Data {
   url: string;
@@ -80,7 +79,6 @@ export default function Home() {
   const formatDate = (dateString: string): string => {
     return dateString.substring(0, 10) + " " + dateString.substring(11, 16);
   };
-  
 
   // 웹 접속 시 처음 한 번 실행하는 함수,
   // Back으로부터 s3의 데이터를 받아 실행합니다.
@@ -156,7 +154,7 @@ export default function Home() {
       if (!imageUrl) {
         const imgUrl = `https://woorung.kr${server_data.url.replace(
           "/var/www",
-          ""
+          "",
         )}?timestamp=${new Date().getTime()}`;
         setImageUrl(imgUrl);
         setLoading(false);
@@ -168,10 +166,10 @@ export default function Home() {
   function formatDateKST(dateStr: string): string {
     const d = new Date(new Date(dateStr).getTime() + 9 * 60 * 60 * 1000);
     const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mi = String(d.getMinutes()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
     return `${yyyy}년 ${mm}월 ${dd}일 ${hh}시 ${mi}분`;
   }
 
@@ -189,16 +187,17 @@ export default function Home() {
 
       <Contectmenu />
 
-      {/* 메인 페이지 */}
+      <div className="title-container">
+        <span className="title-box-with-admin-button">
+          <div className="title-with-logo">🥘 오늘의 우렁각시 메뉴</div>
+          <button className="admin-button" onClick={handlePopupOpen}>
+            관리자 전용
+          </button>
+        </span>
+      </div>
+
       <div className="container">
         <div className="main-box-1">
-          <span className="title-box-with-admin-button">
-            오늘의 우렁각시 메뉴
-            <button className="admin-button" onClick={handlePopupOpen}>
-              관리자 전용
-            </button>
-          </span>
-
           {loading ? (
             <p>데이터를 불러오는 중입니다. . .</p>
           ) : error ? (
@@ -212,33 +211,38 @@ export default function Home() {
           ) : null}
         </div>
 
-        {/* 리뷰 페이지 */}
         <div className="review-column">
-          <span className="visit-counter">오늘의 방문자 수 : {visitcount}</span>
-          <h2>리뷰 작성하기</h2>
+          <div className="review-sticky-header">
+            <span className="visit-counter">
+              오늘의 방문자 수 : {visitcount}
+            </span>
+            <h2>리뷰 작성하기</h2>
 
-          <div className="star-rating">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className="star"
-                style={{ color: star <= rating ? "#ffc107" : "#ccc" }}
-                onClick={() => setRating(star)}
-              >
-                ★
-              </span>
-            ))}
-          </div>
+            <div className="review-form-wrapper">
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className="star"
+                    style={{ color: star <= rating ? "#ffc107" : "#ccc" }}
+                    onClick={() => setRating(star)}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
 
-          {/* 리뷰 작성 인풋 */}
-          <div className="review-input">
-            <input
-              value={message}
-              onChange={(e) => setmessage(e.target.value)}
-              type="text"
-              placeholder="리뷰를 입력하세요!"
-            />
-            <button onClick={handleReviewPopupOpen}>전송</button>
+              {/* 리뷰 작성 인풋 */}
+              <div className="review-input">
+                <input
+                  value={message}
+                  onChange={(e) => setmessage(e.target.value)}
+                  type="text"
+                  placeholder="리뷰를 입력하세요!"
+                />
+                <button onClick={handleReviewPopupOpen}>전송</button>
+              </div>
+            </div>
           </div>
 
           {/* 리뷰 목록 */}
@@ -247,7 +251,7 @@ export default function Home() {
               review_data.map(
                 (
                   review: { message: string; date: string; rate: number },
-                  index: number
+                  index: number,
                 ) => (
                   <li className="review-item" key={index}>
                     <div className="review-content">
@@ -264,10 +268,12 @@ export default function Home() {
                         ))}
                       </div>
                       {review.message}
-                     </div>
-                    <div className="review-date">{formatDateKST(review.date)}</div>
+                    </div>
+                    <div className="review-date">
+                      {formatDateKST(review.date)}
+                    </div>
                   </li>
-                )
+                ),
               )}
           </ul>
         </div>

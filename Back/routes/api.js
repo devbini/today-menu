@@ -1,17 +1,22 @@
-const envPath = process.platform === "win32" 
-  ? "C:/importent/.env_lunch"   // Windows 경로
-  : "/home/importent/.env";     // Linux 경로
-
-// .env 파일 로드
-require('dotenv').config({ path: envPath });
-
 var express = require("express");
 var router = express.Router();
 var mysql = require("mysql2");
 var multer = require("multer");
 const jwt = require("jsonwebtoken");
-const csurf = require('csurf');
-const fs = require("fs");
+const csurf = require("csurf");
+const bcrypt = require("bcryptjs");
+
+// Azure
+const { BlobServiceClient } = require("@azure/storage-blob");
+
+// 현재 시간 읽는 함수
+function getTimeStamp() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${yyyy}${mm}${dd}`;
+}
 
 // 현재 시간 읽는 함수
 function getTimeStamp() {
@@ -35,6 +40,9 @@ function executeQuery(query, params = []) {
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
       timezone: "Z",
+      ssl: {
+        rejectUnauthorized: false,
+      },
     });
 
     // 연결 시도
@@ -59,30 +67,15 @@ function executeQuery(query, params = []) {
   });
 }
 
-// multer 설정 (파일 업로드에 사용)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = process.platform === 'win32'
-      ? 'C:/uploads/'
-      : '/var/www/uploads/';
-
-    // 경로 확인
-    fs.access(uploadPath, fs.constants.W_OK, (err) => {
-      if (err) {
-        console.error("경로가 존재하지 않거나 쓰기 권한이 없습니다:", uploadPath);
-        return cb(new Error("경로가 존재하지 않거나 쓰기 권한이 없습니다"));
-      }
-      cb(null, uploadPath);
-    });
-  },
-  filename: (req, file, cb) => {
-    const timeStamp = getTimeStamp();
-    cb(null, `${timeStamp}_image.jpg`);
-  },
-});
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  process.env.AZURE_STORAGE_CONNECTION_STRING,
+);
+const containerClient = blobServiceClient.getContainerClient(
+  process.env.AZURE_STORAGE_CONTAINER_NAME,
+);
 
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 },
 });
 
@@ -126,7 +119,7 @@ router.post(
   csrfProtection,
   upload.single("image"),
   async function (req, res, next) {
-    console.log("파일 업로드 처리 시작");
+    console.log("파일 업로드 처리 시작 (Azure Blob)");
 
     try {
       if (!req.file) {
@@ -135,35 +128,49 @@ router.post(
       }
 
       const { side } = req.body;
-      const tieestamp = getTimeStamp();
-      const fileName = `${tieestamp}_image.jpg`;
-      const filePath = `/var/www/uploads/${fileName}`;
+      const timeStamp = getTimeStamp();
+      const blobName = `${timeStamp}_image.jpg`;
 
-      const query = "INSERT INTO menu_tb (url, date, side) VALUES (?, NOW(), ?)";
-      const params = [filePath, side];
+      // 1. Blob 클라이언트 가져오기
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+      // 2. 파일 버퍼(RAM)를 Blob Storage로 업로드
+      await blockBlobClient.uploadData(req.file.buffer, {
+        blobHTTPHeaders: { blobContentType: req.file.mimetype },
+      });
+
+      // 3. 업로드된 파일의 공용 URL 가져오기
+      const blobUrl = blockBlobClient.url;
+      console.log("Azure Blob 업로드 성공:", blobUrl);
+
+      // 4. DB에는 로컬 경로가 아닌, 이 공용 URL을 저장
+      const query =
+        "INSERT INTO menu_tb (url, date, side) VALUES (?, NOW(), ?)";
+      const params = [blobUrl, side];
 
       await executeQuery(query, params);
 
       res.status(200).json({ message: "파일 업로드 성공" });
     } catch (err) {
-      console.error("파일 업로드 중 오류 발생:", err);  // 파일 업로드 오류 로그
+      console.error("파일 업로드 중 오류 발생:", err); // 파일 업로드 오류 로그
       res.status(500).send("파일 업로드 오류");
     }
-  }
+  },
 );
 
 // POST /api/uploadReview
 router.post("/uploadReview", async function (req, res, next) {
   const { message, rating } = req.body;
-  
+
   // 값 유효성 검증 (간단하게)
-  if (!message || !rating ) {
+  if (!message || !rating) {
     return res.status(400).json({ message: "필수 데이터가 누락되었습니다." });
   }
 
-  const query = "INSERT INTO review_tb (message, date, rate) VALUES (?, NOW(), ?);";
+  const query =
+    "INSERT INTO review_tb (message, date, rate) VALUES (?, NOW(), ?);";
   const params = [message, rating];
-  
+
   try {
     await executeQuery(query, params);
     res.status(200).json({ message: "리뷰 등록 성공" });
@@ -177,19 +184,31 @@ router.post("/uploadReview", async function (req, res, next) {
 router.post("/login", async function (req, res, next) {
   const { id, pw } = req.body;
 
-  const query = "SELECT * FROM admin_tb WHERE id = ? AND password = ?";
-  const params = [id, pw];
+  const query = "SELECT * FROM admin_tb WHERE id = ?";
+  const params = [id];
 
   try {
     const results = await executeQuery(query, params);
-    if (results.length > 0) {
-      const token = jwt.sign({ id: results[0].id }, process.env.JWT_SECRET, {
+
+    if (results.length === 0) {
+      return res
+        .status(401)
+        .json({ message: "아이디 또는 비밀번호가 잘못되었습니다." });
+    }
+
+    const user = results[0];
+    const storedHash = user.password;
+
+    const passwordMatch = await bcrypt.compare(pw, storedHash);
+
+    if (passwordMatch) {
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
 
       res.cookie("jwt", token, {
         httpOnly: true,
-        maxAge: 60 * 10 * 1000, // 10분
+        maxAge: 60 * 10 * 1000,
       });
 
       // CSRF 토큰을 함께 반환
@@ -198,7 +217,9 @@ router.post("/login", async function (req, res, next) {
         csrfToken: req.session.csrfToken, // 세션에서 CSRF 토큰 반환
       });
     } else {
-      res.status(401).json({ message: "로그인 실패" });
+      res
+        .status(401)
+        .json({ message: "아이디 또는 비밀번호가 잘못되었습니다." });
     }
   } catch (err) {
     console.error(err);
@@ -210,7 +231,7 @@ router.post("/login", async function (req, res, next) {
 router.get("/visitCount", async function (req, res, next) {
   const today = new Date().toISOString().slice(0, 10);
   const query = "SELECT count FROM visit_count WHERE date = ?";
-  
+
   try {
     const results = await executeQuery(query, [today]);
     if (results.length > 0) {
@@ -229,7 +250,7 @@ router.post("/incrementVisitCount", async function (req, res, next) {
   const today = new Date().toISOString().slice(0, 10);
   const updateQuery = "UPDATE visit_count SET count = count + 1 WHERE date = ?";
   const insertQuery = "INSERT INTO visit_count (date, count) VALUES (?, 1)";
-  
+
   try {
     const result = await executeQuery(updateQuery, [today]);
     if (result.affectedRows === 0) {
@@ -241,7 +262,6 @@ router.post("/incrementVisitCount", async function (req, res, next) {
     res.status(500).send("오류 발생");
   }
 });
-
 
 // JWT 인증 미들웨어
 function authenticateToken(req, res, next) {
