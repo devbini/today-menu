@@ -4,6 +4,7 @@ var mysql = require("mysql2");
 var multer = require("multer");
 const jwt = require("jsonwebtoken");
 const csurf = require("csurf");
+const bcrypt = require("bcryptjs");
 
 // Azure
 const { BlobServiceClient } = require("@azure/storage-blob");
@@ -174,19 +175,31 @@ router.post("/uploadReview", async function (req, res, next) {
 router.post("/login", async function (req, res, next) {
   const { id, pw } = req.body;
 
-  const query = "SELECT * FROM admin_tb WHERE id = ? AND password = ?";
-  const params = [id, pw];
+  const query = "SELECT * FROM admin_tb WHERE id = ?";
+  const params = [id];
 
   try {
     const results = await executeQuery(query, params);
-    if (results.length > 0) {
-      const token = jwt.sign({ id: results[0].id }, process.env.JWT_SECRET, {
+
+    if (results.length === 0) {
+      return res
+        .status(401)
+        .json({ message: "아이디 또는 비밀번호가 잘못되었습니다." });
+    }
+
+    const user = results[0];
+    const storedHash = user.password;
+
+    const passwordMatch = await bcrypt.compare(pw, storedHash);
+
+    if (passwordMatch) {
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
 
       res.cookie("jwt", token, {
         httpOnly: true,
-        maxAge: 60 * 10 * 1000, // 10분
+        maxAge: 60 * 10 * 1000,
       });
 
       // CSRF 토큰을 함께 반환
@@ -195,7 +208,9 @@ router.post("/login", async function (req, res, next) {
         csrfToken: req.session.csrfToken, // 세션에서 CSRF 토큰 반환
       });
     } else {
-      res.status(401).json({ message: "로그인 실패" });
+      res
+        .status(401)
+        .json({ message: "아이디 또는 비밀번호가 잘못되었습니다." });
     }
   } catch (err) {
     console.error(err);
