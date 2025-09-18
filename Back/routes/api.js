@@ -96,6 +96,7 @@ router.get("/getdatas", async function (req, res, next) {
       res.status(404).send("데이터 없음");
     }
   } catch (err) {
+    console.error("데이터 읽기 오류:", err);
     res.status(500).send("서버 오류");
   }
 });
@@ -222,7 +223,7 @@ router.post("/login", async function (req, res, next) {
         .json({ message: "아이디 또는 비밀번호가 잘못되었습니다." });
     }
   } catch (err) {
-    console.error(err);
+    console.error("로그인 오류", err);
     res.status(500).send("서버 오류");
   }
 });
@@ -281,10 +282,7 @@ function authenticateToken(req, res, next) {
 
 // CSRF 토큰을 세션에 저장하고 재사용
 router.get("/csrf-token", function (req, res) {
-  if (!req.session.csrfToken) {
-    req.session.csrfToken = req.csrfToken();
-  }
-  res.json({ csrfToken: req.session.csrfToken });
+  res.json({ csrfToken: req.csrfToken() });
 });
 
 module.exports = router;
