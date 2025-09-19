@@ -204,7 +204,7 @@ router.post("/login", async function (req, res, next) {
       // CSRF 토큰을 함께 반환
       res.json({
         token,
-        csrfToken: req.csrfToken()
+        csrfToken: req.csrfToken(),
       });
     } else {
       res
