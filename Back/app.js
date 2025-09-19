@@ -45,7 +45,11 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === "production" },
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    },
   }),
 );
 
@@ -59,7 +63,14 @@ app.use(cors(corsOptions));
 
 // CSRF 보호 및 쿠키 파서 추가
 app.use(cookieParser());
-const csrfProtection = csurf({ cookie: true });
+const csrfProtection = csurf({
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    httpOnly: true,
+  },
+});
+
 app.use((req, res, next) => {
   if (
     req.path === "/api/incrementVisitCount" ||
