@@ -18,18 +18,6 @@ function getTimeStamp() {
   return `${yyyy}${mm}${dd}`;
 }
 
-// 현재 시간 읽는 함수
-function getTimeStamp() {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  return `${yyyy}${mm}${dd}`;
-}
-
-// CSRF 보호 설정
-const csrfProtection = csurf({ cookie: true });
-
 // MySQL 쿼리 실행 함수 (요청 때 마다 연결을 생성하도록...)
 function executeQuery(query, params = []) {
   return new Promise((resolve, reject) => {
@@ -117,7 +105,6 @@ router.get("/getreviews", async function (req, res, next) {
 router.post(
   "/upload",
   authenticateToken,
-  csrfProtection,
   upload.single("image"),
   async function (req, res, next) {
     console.log("파일 업로드 처리 시작 (Azure Blob)");
@@ -210,12 +197,14 @@ router.post("/login", async function (req, res, next) {
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 60 * 10 * 1000,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
 
       // CSRF 토큰을 함께 반환
       res.json({
         token,
-        csrfToken: req.session.csrfToken, // 세션에서 CSRF 토큰 반환
+        csrfToken: req.csrfToken()
       });
     } else {
       res
