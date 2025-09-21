@@ -27,7 +27,7 @@ function executeQuery(query, params = []) {
       user: process.env.DB_USER,
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
-      timezone: "Z",
+      timezone: "Asia/Seoul",
       ssl: {
         rejectUnauthorized: false,
       },
@@ -133,8 +133,8 @@ router.post(
 
       // 4. DB에는 로컬 경로가 아닌, 이 공용 URL을 저장
       const query =
-        "INSERT INTO menu_tb (url, date, side) VALUES (?, NOW(), ?)";
-      const params = [blobUrl, side];
+        "INSERT INTO menu_tb (url, date, side) VALUES (?, ?, ?)";
+      const params = [blobUrl, new Date(), side];
 
       await executeQuery(query, params);
 
@@ -156,8 +156,8 @@ router.post("/uploadReview", async function (req, res, next) {
   }
 
   const query =
-    "INSERT INTO review_tb (message, date, rate) VALUES (?, NOW(), ?);";
-  const params = [message, rating];
+    "INSERT INTO review_tb (message, date, rate) VALUES (?, ?, ?);";
+  const params = [message, new Date(), rating];
 
   try {
     await executeQuery(query, params);

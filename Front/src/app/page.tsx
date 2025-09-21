@@ -152,10 +152,7 @@ export default function Home() {
     if (server_data) {
       setLoading(false);
       if (!imageUrl) {
-        const imgUrl = `https://woorung.kr${server_data.url.replace(
-          "/var/www",
-          "",
-        )}?timestamp=${new Date().getTime()}`;
+        const imgUrl = `${server_data.url}?timestamp=${new Date().getTime()}`;
         setImageUrl(imgUrl);
         setLoading(false);
       }
@@ -164,7 +161,7 @@ export default function Home() {
 
   // 시간 포메팅
   function formatDateKST(dateStr: string): string {
-    const d = new Date(new Date(dateStr).getTime() + 9 * 60 * 60 * 1000);
+    const d = new Date(dateStr);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
