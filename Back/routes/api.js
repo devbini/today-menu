@@ -170,6 +170,8 @@ router.post("/uploadReview", async function (req, res, next) {
 
 // POST /api/login
 router.post("/login", async function (req, res, next) {
+  console.log('[DEBUG] API.JS v4 - FORCED REFRESH');
+
   const { id, pw } = req.body;
 
   const query = "SELECT * FROM admin_tb WHERE id = ?";
