@@ -170,6 +170,15 @@ export default function Home() {
     return `${yyyy}년 ${mm}월 ${dd}일 ${hh}시 ${mi}분`;
   }
 
+  // 시간 포메팅
+  function formatDateKSTForMenu(dateStr: string): string {
+    const d = new Date(dateStr);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   // HTML
   return (
     <>
@@ -202,7 +211,7 @@ export default function Home() {
           ) : server_data ? (
             <div className="menu-card">
               <img src={imageUrl} alt="오늘의 메뉴" />
-              <p className="date">{server_data.date.substring(0, 10)}</p>
+              <p className="date">{formatDateKSTForMenu(server_data.date)}</p>
               <p className="side">사이드 : {server_data.side}</p>
             </div>
           ) : null}

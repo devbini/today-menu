@@ -36,7 +36,9 @@ h1 {
 /* 이미지 스타일 */
 .menu-card img {
   max-width: 100%;
+  max-height: 53.5vh;
   height: auto;
+  object-fit: contain;
   border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
   border: 1px solid var(--border-color);
