@@ -197,8 +197,8 @@ router.post("/login", async function (req, res, next) {
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 60 * 10 * 1000,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: true,
+        sameSite: "none",
       });
 
       // CSRF 토큰을 함께 반환
